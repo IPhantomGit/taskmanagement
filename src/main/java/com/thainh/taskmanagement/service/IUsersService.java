@@ -6,4 +6,8 @@ import java.util.List;
 
 public interface IUsersService {
     List<UsersDto> fetchAllUsers();
+    void createUser(UsersDto usersDto);
+    void updateUser(Long id, UsersDto usersDto);
+    void deleteUser(Long id);
+    UsersDto fetchUserById(Long id);
 }

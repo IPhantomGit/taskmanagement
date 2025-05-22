@@ -13,7 +13,6 @@ public class UsersMapper {
     }
 
     public static Users mapToUsers(UsersDto usersDto, Users users) {
-        users.setId(usersDto.getId());
         users.setUsername(usersDto.getUsername());
         users.setFullName(usersDto.getFullName());
         return users;
