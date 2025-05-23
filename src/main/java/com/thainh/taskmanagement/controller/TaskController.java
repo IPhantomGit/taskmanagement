@@ -93,8 +93,8 @@ public class TaskController {
                     description = "Fetch all tasks"
             )}
     )
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TaskListDto> fetchAlltasks() {
+    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TaskListDto> fetchAllTasks() {
         TaskListDto result = new TaskListDto(taskService.fetchAllTasks());
         return ResponseEntity.ok(result);
     }
@@ -136,7 +136,7 @@ public class TaskController {
                                     name = "InternalServerErrorExample",
                                     summary = "Error unknown",
                                     value = """
-                                            {  "apiPath": "uri=/api/tasks/create",
+                                            {  "apiPath": "uri=/api/tasks/1",
                                                 "errorCode": "INTERNAL_SERVER_ERROR",
                                                 "errorMessage": "error unknown",
                                                 "errorTime": "2025-05-22T01:49:48.0263839" }"""
@@ -171,7 +171,7 @@ public class TaskController {
                                     summary = "NOT FOUND",
                                     value = """
                                             {
-                                                "apiPath": "uri=/api/tasks/1",
+                                                "apiPath": "uri=/api/tasks/delete/1",
                                                 "errorCode": "NOT_FOUND",
                                                 "errorMessage": "Task not found with field id : '1'",
                                                 "errorTime": "2025-05-23T23:49:35.8741427"
@@ -189,7 +189,7 @@ public class TaskController {
                                     name = "InternalServerErrorExample",
                                     summary = "Error unknown",
                                     value = """
-                                            {  "apiPath": "uri=/api/users/create",
+                                            {  "apiPath": "uri=/api/tasks/delete",
                                                 "errorCode": "INTERNAL_SERVER_ERROR",
                                                 "errorMessage": "error unknown",
                                                 "errorTime": "2025-05-22T01:49:48.0263839" }"""
@@ -203,5 +203,60 @@ public class TaskController {
         taskService.deleteTask(id);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ResponseDto(Constants.STATUS_200,Constants.DELETE_SUCCESS));
+    }
+
+    @Operation(
+            summary = "Update a task",
+            description = "Update a task by id"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Update successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad request",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "BadRequestExample",
+                                    summary = "BAD REQUEST",
+                                    value = """
+                                            {\
+                                                "apiPath": "uri=/api/tasks/update/1",
+                                                "errorCode": "BAD_REQUEST",
+                                                "errorMessage": "Nothing to update",
+                                                "errorTime": "2025-05-22T21:35:39.7374659"
+                                            }"""
+                            ),
+                            schema = @Schema(implementation = ResponseDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "InternalServerErrorExample",
+                                    summary = "Error unknown",
+                                    value = """
+                                            {  "apiPath": "uri=/api/tasks/update/1",
+                                                "errorCode": "INTERNAL_SERVER_ERROR",
+                                                "errorMessage": "error unknown",
+                                                "errorTime": "2025-05-22T01:49:48.0263839" }"""
+                            ),
+                            schema = @Schema(implementation = ResponseDto.class)
+                    )
+            ),
+    })
+    @PatchMapping(value = "/update/{id}", produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseDto> updateTask(@PathVariable("id") Long id,
+                                                  @RequestBody ObjectNode objectNode) {
+        taskService.updateTask(id, objectNode);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ResponseDto(Constants.STATUS_200,Constants.UPDATE_SUCCESS));
     }
 }

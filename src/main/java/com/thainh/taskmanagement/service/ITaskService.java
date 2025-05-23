@@ -13,4 +13,6 @@ public interface ITaskService {
     ObjectNode fetchTaskById(Long id);
 
     void deleteTask(Long id);
+
+    void updateTask(Long id, ObjectNode objectNode);
 }

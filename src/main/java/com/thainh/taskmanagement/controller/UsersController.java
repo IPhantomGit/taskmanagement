@@ -42,7 +42,7 @@ public class UsersController {
                     description = "Fetch all users"
             )}
     )
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UsersListDto> fetchAllUsers() {
         UsersListDto result = new UsersListDto(usersService.fetchAllUsers());
         return ResponseEntity.ok(result);
@@ -139,7 +139,7 @@ public class UsersController {
                                     name = "InternalServerErrorExample",
                                     summary = "Error unknown",
                                     value = """
-                                            {  "apiPath": "uri=/api/users/create",
+                                            {  "apiPath": "uri=/api/users/update/1",
                                                 "errorCode": "INTERNAL_SERVER_ERROR",
                                                 "errorMessage": "error unknown",
                                                 "errorTime": "2025-05-22T01:49:48.0263839" }"""
@@ -176,7 +176,7 @@ public class UsersController {
                                     summary = "NOT FOUND",
                                     value = """
                                             {\
-                                                "apiPath": "uri=/api/users/update/12",
+                                                "apiPath": "uri=/api/users/12",
                                                 "errorCode": "NOT_FOUND",
                                                 "errorMessage": "User not found with field id : '12'",
                                                 "errorTime": "2025-05-22T22:08:11.8181917"
@@ -194,7 +194,7 @@ public class UsersController {
                                     name = "InternalServerErrorExample",
                                     summary = "Error unknown",
                                     value = """
-                                            {  "apiPath": "uri=/api/users/create",
+                                            {  "apiPath": "uri=/api/users/1",
                                                 "errorCode": "INTERNAL_SERVER_ERROR",
                                                 "errorMessage": "error unknown",
                                                 "errorTime": "2025-05-22T01:49:48.0263839" }"""
@@ -229,7 +229,7 @@ public class UsersController {
                                     summary = "NOT FOUND",
                                     value = """
                                             {\
-                                                "apiPath": "uri=/api/users/update/12",
+                                                "apiPath": "uri=/api/users/delete/12",
                                                 "errorCode": "NOT_FOUND",
                                                 "errorMessage": "User not found with field id : '12'",
                                                 "errorTime": "2025-05-22T22:08:11.8181917"
@@ -247,7 +247,7 @@ public class UsersController {
                                     name = "InternalServerErrorExample",
                                     summary = "Error unknown",
                                     value = """
-                                            {  "apiPath": "uri=/api/users/create",
+                                            {  "apiPath": "uri=/api/users/delete/12",
                                                 "errorCode": "INTERNAL_SERVER_ERROR",
                                                 "errorMessage": "error unknown",
                                                 "errorTime": "2025-05-22T01:49:48.0263839" }"""

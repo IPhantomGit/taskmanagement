@@ -20,6 +20,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.time.LocalDate;
@@ -39,6 +40,48 @@ public class TaskServiceImpl implements ITaskService {
     private ObjectMapper mapper;
 
     private static final String CATEGORY = "category";
+
+    /***
+     * user transactional to roll back if error
+     * @param id task id
+     * @param taskDto information for update
+     */
+    @Override
+    @Transactional
+    public void updateTask(Long id, ObjectNode taskDto) {
+        Task task = taskRepository.findById(id).
+                orElseThrow(() -> new ResourceNotFoundException("Task", "id", "" + id));
+        Long userId = taskDto.get("userId").asLong();
+        usersRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Users", "id", "" + userId));
+        int category = taskDto.get(CATEGORY).asInt();
+        // check category
+        if (Constants.CATEGORY.BUG.getCode() == category) {
+            if (task.getCategory() != category) {
+                //need to delete old feature
+                Feature feature = featureRepository.findById(task.getCategoryId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Task", "id", "" + id));
+                featureRepository.delete(feature);
+                //create new bug
+                upsertBug(taskDto, null, task.getId());
+            } else {
+                upsertBug(taskDto, task.getCategoryId(), task.getId());
+            }
+        } else if (Constants.CATEGORY.FEATURE.getCode() == category) {
+            if (task.getCategory() != category) {
+                //need to delete old bug
+                Bug bug = bugRepository.findById(task.getCategoryId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Task", "id", "" + id));
+                bugRepository.delete(bug);
+                //create new feature
+                upsertFeature(taskDto, null, task.getId());
+            } else {
+                upsertFeature(taskDto, task.getCategoryId(), task.getId());
+            }
+        } else {
+            throw new TaskRequestException("Invalid category%s: [%s]", "", "" + category);
+        }
+    }
 
     @Override
     public void deleteTask(Long id) {
@@ -111,39 +154,45 @@ public class TaskServiceImpl implements ITaskService {
         int category = taskDto.get(CATEGORY).asInt();
         // check category
         if (Constants.CATEGORY.BUG.getCode() == category) {
-            BugDto bugDto = mapper.convertValue(taskDto, BugDto.class);
-            Set<ConstraintViolation<BugDto>> violations = validator.validate(bugDto);
-            if (!violations.isEmpty()) {
-                List<String> invalidFields = violations.stream()
-                        .map(ConstraintViolation::getMessage)
-                        .toList();
-                throw new TaskRequestException("%s%s", "", String.join(", ", invalidFields));
-            }
-            createBug(bugDto);
+            upsertBug(taskDto, null, null);
         } else if (Constants.CATEGORY.FEATURE.getCode() == category) {
-            FeatureDto featureDto = mapper.convertValue(taskDto, FeatureDto.class);
-            Set<ConstraintViolation<FeatureDto>> violations = validator.validate(featureDto);
-            if (!violations.isEmpty()) {
-                List<String> invalidFields = violations.stream()
-                        .map(ConstraintViolation::getMessage)
-                        .toList();
-                throw new TaskRequestException("%s%s", "", String.join(", ", invalidFields));
-            }
-            createFeature(featureDto);
+            upsertFeature(taskDto, null, null);
         } else {
             throw new TaskRequestException("Invalid category%s: [%s]", "", "" + category);
         }
     }
 
-    private void createBug(BugDto bugDto) {
+    private void upsertBug(ObjectNode taskDto, Long bugId, Long taskId) {
+        BugDto bugDto = mapper.convertValue(taskDto, BugDto.class);
+        Set<ConstraintViolation<BugDto>> violations = validator.validate(bugDto);
+        if (!violations.isEmpty()) {
+            List<String> invalidFields = violations.stream()
+                    .map(ConstraintViolation::getMessage)
+                    .toList();
+            throw new TaskRequestException("%s%s", "", String.join(", ", invalidFields));
+        }
         Bug bug = TaskMapper.mapToBug(bugDto, new Bug());
+        if (bugId != null) {
+            bug.setId(bugId);
+        }
         bugRepository.save(bug);
         bugDto.setCategoryId(bug.getId());
         Task task = TaskMapper.mapToTask(bugDto, new Task());
+        if (taskId != null) {
+            task.setId(taskId);
+        }
         taskRepository.save(task);
     }
 
-    private void createFeature(FeatureDto featureDto) {
+    private void upsertFeature(ObjectNode taskDto, Long featureId, Long taskId) {
+        FeatureDto featureDto = mapper.convertValue(taskDto, FeatureDto.class);
+        Set<ConstraintViolation<FeatureDto>> violations = validator.validate(featureDto);
+        if (!violations.isEmpty()) {
+            List<String> invalidFields = violations.stream()
+                    .map(ConstraintViolation::getMessage)
+                    .toList();
+            throw new TaskRequestException("%s%s", "", String.join(", ", invalidFields));
+        }
         Feature feature;
         try {
             feature = TaskMapper.mapToFeature(featureDto, new Feature());
@@ -153,9 +202,15 @@ public class TaskServiceImpl implements ITaskService {
         } catch (ParseException e) {
             throw new TaskRequestException("Validation %s failed: %s", "deadline", e.getMessage());
         }
+        if (featureId != null) {
+            feature.setId(featureId);
+        }
         featureRepository.save(feature);
         featureDto.setCategoryId(feature.getId());
         Task task = TaskMapper.mapToTask(featureDto, new Task());
+        if (taskId != null) {
+            task.setId(taskId);
+        }
         taskRepository.save(task);
     }
 }
