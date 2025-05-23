@@ -99,7 +99,7 @@ public class SearchControllerTest {
                             new TypeReference<TaskListDto>() {});
                     assertEquals("fetch all tasks successful",
                             "Test Task",
-                            actual.getResults().getFirst().get("title").asText());
+                            actual.getResults().get(0).get("title").asText());
                 });
     }
 }

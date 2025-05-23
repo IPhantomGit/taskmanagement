@@ -65,7 +65,7 @@ public class UserControllerTest {
                             new TypeReference<HashMap<String, List<UsersDto>>>() {});
                     assertEquals("fetch all user successful",
                             usersDto,
-                            actual.get("results").getFirst());
+                            actual.get("results").get(0));
                 });
     }
 

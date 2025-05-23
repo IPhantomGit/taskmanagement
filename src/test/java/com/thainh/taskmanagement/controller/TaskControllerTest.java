@@ -94,7 +94,7 @@ public class TaskControllerTest {
                             new TypeReference<TaskListDto>() {});
                     assertEquals("fetch all tasks successful",
                             bugDto.getSeverity(),
-                            actual.getResults().getFirst().get("severity").asInt());
+                            actual.getResults().get(0).get("severity").asInt());
                 });
     }
 
