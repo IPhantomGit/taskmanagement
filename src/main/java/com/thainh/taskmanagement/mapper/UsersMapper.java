@@ -9,12 +9,14 @@ public class UsersMapper {
         usersDto.setId(users.getId());
         usersDto.setUsername(users.getUsername());
         usersDto.setFullName(users.getFullName());
+        usersDto.setPassword(users.getPassword());
         return usersDto;
     }
 
     public static Users mapToUsers(UsersDto usersDto, Users users) {
         users.setUsername(usersDto.getUsername());
         users.setFullName(usersDto.getFullName());
+        users.setPassword(usersDto.getPassword());
         return users;
     }
 }

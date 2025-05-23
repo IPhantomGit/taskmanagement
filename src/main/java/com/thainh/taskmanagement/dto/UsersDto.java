@@ -22,4 +22,6 @@ public class UsersDto {
     @NotEmpty(message = "Full name is required")
     @Size(min=5, message = "Full name must be at least 5 characters")
     private String fullName;
+    @Schema(description = "user password", example = "admin@123")
+    private String password;
 }
