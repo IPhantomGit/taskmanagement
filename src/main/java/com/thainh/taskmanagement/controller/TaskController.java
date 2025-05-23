@@ -146,9 +146,62 @@ public class TaskController {
             ),
     })
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ObjectNode> fetchUser(@PathVariable("id") Long id) {
+    public ResponseEntity<ObjectNode> fetchTask(@PathVariable("id") Long id) {
         ObjectNode objectNode = taskService.fetchTaskById(id);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(objectNode);
+    }
+
+    @Operation(
+            summary = "Delete an user",
+            description = "Delete an user"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Delete successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "BadRequestExample",
+                                    summary = "NOT FOUND",
+                                    value = """
+                                            {
+                                                "apiPath": "uri=/api/tasks/1",
+                                                "errorCode": "NOT_FOUND",
+                                                "errorMessage": "Task not found with field id : '1'",
+                                                "errorTime": "2025-05-23T23:49:35.8741427"
+                                            }"""
+                            ),
+                            schema = @Schema(implementation = ResponseDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "InternalServerErrorExample",
+                                    summary = "Error unknown",
+                                    value = """
+                                            {  "apiPath": "uri=/api/users/create",
+                                                "errorCode": "INTERNAL_SERVER_ERROR",
+                                                "errorMessage": "error unknown",
+                                                "errorTime": "2025-05-22T01:49:48.0263839" }"""
+                            ),
+                            schema = @Schema(implementation = ResponseDto.class)
+                    )
+            ),
+    })
+    @DeleteMapping(value = "/delete/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseDto> deleteTask(@PathVariable("id") Long id) {
+        taskService.deleteTask(id);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ResponseDto(Constants.STATUS_200,Constants.DELETE_SUCCESS));
     }
 }

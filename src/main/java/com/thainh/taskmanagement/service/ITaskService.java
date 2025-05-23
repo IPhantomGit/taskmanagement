@@ -11,4 +11,6 @@ public interface ITaskService {
     List<ObjectNode> fetchAllTasks();
 
     ObjectNode fetchTaskById(Long id);
+
+    void deleteTask(Long id);
 }

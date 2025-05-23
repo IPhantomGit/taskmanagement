@@ -41,6 +41,22 @@ public class TaskServiceImpl implements ITaskService {
     private static final String CATEGORY = "category";
 
     @Override
+    public void deleteTask(Long id) {
+        Task task = taskRepository.findById(id).
+                orElseThrow(() -> new ResourceNotFoundException("Task", "id", "" + id));
+        if (Constants.CATEGORY.BUG.getCode() == task.getCategory()) {
+            Bug bug = bugRepository.findById(task.getCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Task", "id", "" + id));
+            bugRepository.delete(bug);
+        } else if (Constants.CATEGORY.FEATURE.getCode() == task.getCategory()) {
+            Feature feature = featureRepository.findById(task.getCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Task", "id", "" + id));
+            featureRepository.delete(feature);
+        }
+        taskRepository.delete(task);
+    }
+
+    @Override
     public ObjectNode fetchTaskById(Long id) {
         Task task = taskRepository.findById(id).
                 orElseThrow(() -> new ResourceNotFoundException("Task", "id", "" + id));
