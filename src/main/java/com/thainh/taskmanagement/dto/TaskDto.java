@@ -15,14 +15,16 @@ import lombok.Data;
 public class TaskDto {
     @Schema(description = "task id", example = "1234567890")
     private Long id;
-    @NotNull
+    @NotNull(message = "Title is required")
+    @NotEmpty(message = "Title must not be empty")
     @Schema(description = "task title", example = "New task")
     private String title;
     @Schema(description = "task description", example = "description")
     private String description;
-    @NotEmpty
-    @Schema(description = "assignee", example = "thainh")
-    private String userId;
+    @NotNull
+    @Min(value = 0, message = "User id must be greater than 0")
+    @Schema(description = "assignee", example = "1")
+    private Long userId;
     @NotNull
     @Min(value = 0, message = "Category must be between 0 or 1")
     @Max(value = 1, message = "Category must be between 0 or 1")

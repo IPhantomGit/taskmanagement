@@ -18,7 +18,7 @@ public class Task extends BaseEntity{
     private Long id;
     private String title;
     private String description;
-    private String userId;
+    private Long userId;
     private int category;
     private Long categoryId;
     private int status;

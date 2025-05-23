@@ -1,9 +1,14 @@
 package com.thainh.taskmanagement.mapper;
 
 import com.thainh.taskmanagement.dto.BugDto;
-import com.thainh.taskmanagement.dto.TaskDto;
+import com.thainh.taskmanagement.dto.FeatureDto;
 import com.thainh.taskmanagement.entity.Bug;
+import com.thainh.taskmanagement.entity.Feature;
 import com.thainh.taskmanagement.entity.Task;
+
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class TaskMapper {
 
@@ -38,5 +43,22 @@ public class TaskMapper {
         bug.setExpectedResult(bugDto.getExpectedResult());
         bug.setActualResult(bugDto.getActualResult());
         return bug;
+    }
+
+    public static Task mapToTask(FeatureDto featureDto, Task task) {
+        task.setDescription(featureDto.getDescription());
+        task.setTitle(featureDto.getTitle());
+        task.setUserId(featureDto.getUserId());
+        task.setCategory(featureDto.getCategory());
+        task.setCategoryId(featureDto.getCategoryId());
+        task.setStatus(featureDto.getStatus());
+        return task;
+    }
+
+    public static Feature mapToFeature(FeatureDto featureDto, Feature feature) throws ParseException {
+        feature.setBusinessValue(featureDto.getBusinessValue());
+        DateTimeFormatter sdf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+        feature.setDeadline(LocalDate.parse(featureDto.getDeadline(), sdf));
+        return feature;
     }
 }

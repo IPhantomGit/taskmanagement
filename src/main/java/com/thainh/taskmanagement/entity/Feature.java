@@ -6,7 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -20,5 +20,5 @@ public class Feature extends BaseEntity{
     private Long id;
 
     private String businessValue;
-    private LocalDateTime deadline;
+    private LocalDate deadline;
 }

@@ -20,7 +20,7 @@ public class UsersServiceImpl implements IUsersService {
 
     @Override
     public List<UsersDto> fetchAllUsers() {
-        List<Users> users = usersRepository.findAll(); // List<Users>
+        List<Users> users = usersRepository.findAllByOrderByIdAscCreatedAtAsc(); // List<Users>
         return users.stream().map(user -> UsersMapper.mapToUsersDto(user, new UsersDto())).toList();
     }
 
