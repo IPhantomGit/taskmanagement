@@ -66,7 +66,7 @@ public class TaskController {
                                     name = "InternalServerErrorExample",
                                     summary = "Error unknown",
                                     value = """
-                                            {  "apiPath": "uri=/api/users/create",
+                                            {  "apiPath": "uri=/api/tasks/create",
                                                 "errorCode": "INTERNAL_SERVER_ERROR",
                                                 "errorMessage": "error unknown",
                                                 "errorTime": "2025-05-22T01:49:48.0263839" }"""
@@ -94,8 +94,61 @@ public class TaskController {
             )}
     )
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TaskListDto> fetchAllUsers() {
+    public ResponseEntity<TaskListDto> fetchAlltasks() {
         TaskListDto result = new TaskListDto(taskService.fetchAllTasks());
         return ResponseEntity.ok(result);
+    }
+
+    @Operation(
+            summary = "Fetch a task",
+            description = "Fetch a task by id"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Fetch successfully"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "BadRequestExample",
+                                    summary = "NOT FOUND",
+                                    value = """
+                                            {
+                                                "apiPath": "uri=/api/tasks/1",
+                                                "errorCode": "NOT_FOUND",
+                                                "errorMessage": "Task not found with field id : '1'",
+                                                "errorTime": "2025-05-23T23:49:35.8741427"
+                                            }"""
+                            ),
+                            schema = @Schema(implementation = ResponseDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    name = "InternalServerErrorExample",
+                                    summary = "Error unknown",
+                                    value = """
+                                            {  "apiPath": "uri=/api/tasks/create",
+                                                "errorCode": "INTERNAL_SERVER_ERROR",
+                                                "errorMessage": "error unknown",
+                                                "errorTime": "2025-05-22T01:49:48.0263839" }"""
+                            ),
+                            schema = @Schema(implementation = ResponseDto.class)
+                    )
+            ),
+    })
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ObjectNode> fetchUser(@PathVariable("id") Long id) {
+        ObjectNode objectNode = taskService.fetchTaskById(id);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(objectNode);
     }
 }

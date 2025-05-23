@@ -9,4 +9,6 @@ public interface ITaskService {
     void createTask(ObjectNode taskDto);
 
     List<ObjectNode> fetchAllTasks();
+
+    ObjectNode fetchTaskById(Long id);
 }

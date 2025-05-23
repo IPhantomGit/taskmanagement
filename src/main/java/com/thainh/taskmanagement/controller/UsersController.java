@@ -64,7 +64,7 @@ public class UsersController {
                             mediaType = "application/json",
                             examples = @ExampleObject(
                                     name = "BadRequestExample",
-                                    summary = "Missing fields",
+                                    summary = "BAD REQUEST",
                                     value = """
                                             {\
                                                 "apiPath": "uri=/api/users/create",
@@ -118,7 +118,7 @@ public class UsersController {
                             mediaType = "application/json",
                             examples = @ExampleObject(
                                     name = "BadRequestExample",
-                                    summary = "Missing fields",
+                                    summary = "BAD REQUEST",
                                     value = """
                                             {\
                                                 "apiPath": "uri=/api/users/create",
@@ -173,7 +173,7 @@ public class UsersController {
                             mediaType = "application/json",
                             examples = @ExampleObject(
                                     name = "BadRequestExample",
-                                    summary = "Missing fields",
+                                    summary = "NOT FOUND",
                                     value = """
                                             {\
                                                 "apiPath": "uri=/api/users/update/12",
@@ -226,7 +226,7 @@ public class UsersController {
                             mediaType = "application/json",
                             examples = @ExampleObject(
                                     name = "BadRequestExample",
-                                    summary = "Missing fields",
+                                    summary = "NOT FOUND",
                                     value = """
                                             {\
                                                 "apiPath": "uri=/api/users/update/12",

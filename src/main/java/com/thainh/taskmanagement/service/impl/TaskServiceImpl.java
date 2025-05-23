@@ -36,15 +36,33 @@ public class TaskServiceImpl implements ITaskService {
     private BugRepository bugRepository;
     private UsersRepository usersRepository;
     private Validator validator;
+    private ObjectMapper mapper;
 
     private static final String CATEGORY = "category";
+
+    @Override
+    public ObjectNode fetchTaskById(Long id) {
+        Task task = taskRepository.findById(id).
+                orElseThrow(() -> new ResourceNotFoundException("Task", "id", "" + id));
+        if (Constants.CATEGORY.BUG.getCode() == task.getCategory()) {
+            Bug bug = bugRepository.findById(task.getCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Task", "id", "" + id));
+            BugDto bugDto = TaskMapper.mapToBugDto(bug, task, new BugDto());
+            return mapper.valueToTree(bugDto);
+        } else if (Constants.CATEGORY.FEATURE.getCode() == task.getCategory()) {
+            Feature feature = featureRepository.findById(task.getCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Task", "id", "" + id));
+            FeatureDto featureDto = TaskMapper.mapToFeatureDto(feature, task, new FeatureDto());
+            return mapper.valueToTree(featureDto);
+        }
+        throw new ResourceNotFoundException("Task", "id", "" + id);
+    }
 
     @Override
     public List<ObjectNode> fetchAllTasks() {
         List<Task> tasks = taskRepository.findAllByOrderByCreatedAtDesc();
         List<Bug> bugs = bugRepository.findAll();
         List<Feature> features = featureRepository.findAll();
-        ObjectMapper mapper = new ObjectMapper();
         if (!tasks.isEmpty()) {
             return tasks.stream().map(task -> {
                 if (Constants.CATEGORY.BUG.getCode() == task.getCategory()) {
@@ -75,10 +93,9 @@ public class TaskServiceImpl implements ITaskService {
         usersRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Users", "id", "" + userId));
         int category = taskDto.get(CATEGORY).asInt();
-        ObjectMapper objectMapper = new ObjectMapper();
         // check category
         if (Constants.CATEGORY.BUG.getCode() == category) {
-            BugDto bugDto = objectMapper.convertValue(taskDto, BugDto.class);
+            BugDto bugDto = mapper.convertValue(taskDto, BugDto.class);
             Set<ConstraintViolation<BugDto>> violations = validator.validate(bugDto);
             if (!violations.isEmpty()) {
                 List<String> invalidFields = violations.stream()
@@ -88,7 +105,7 @@ public class TaskServiceImpl implements ITaskService {
             }
             createBug(bugDto);
         } else if (Constants.CATEGORY.FEATURE.getCode() == category) {
-            FeatureDto featureDto = objectMapper.convertValue(taskDto, FeatureDto.class);
+            FeatureDto featureDto = mapper.convertValue(taskDto, FeatureDto.class);
             Set<ConstraintViolation<FeatureDto>> violations = validator.validate(featureDto);
             if (!violations.isEmpty()) {
                 List<String> invalidFields = violations.stream()
