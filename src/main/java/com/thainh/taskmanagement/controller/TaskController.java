@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -95,7 +96,10 @@ public class TaskController {
     )
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TaskListDto> fetchAllTasks() {
-        TaskListDto result = new TaskListDto(taskService.fetchAllTasks());
+        Page<ObjectNode> tasks = taskService.fetchAllTasks();
+        TaskListDto result = new TaskListDto(tasks.getContent(),
+                tasks.getTotalElements(),
+                tasks.getTotalPages());
         return ResponseEntity.ok(result);
     }
 

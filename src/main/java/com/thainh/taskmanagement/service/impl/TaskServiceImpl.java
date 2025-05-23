@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.thainh.taskmanagement.dto.BugDto;
 import com.thainh.taskmanagement.dto.FeatureDto;
+import com.thainh.taskmanagement.dto.SearchDto;
 import com.thainh.taskmanagement.entity.Bug;
 import com.thainh.taskmanagement.entity.Feature;
 import com.thainh.taskmanagement.entity.Task;
@@ -19,6 +20,7 @@ import com.thainh.taskmanagement.utils.Constants;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +42,24 @@ public class TaskServiceImpl implements ITaskService {
     private ObjectMapper mapper;
 
     private static final String CATEGORY = "category";
+
+    @Override
+    public Page<ObjectNode> searchTasks(SearchDto searchDto) {
+        if (searchDto.getUserId() != null) {
+            usersRepository.findById(searchDto.getUserId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Users", "id", "" + searchDto.getUserId()));
+        }
+        Pageable pageable = PageRequest.of(searchDto.getPageNum(),
+                searchDto.getPageSize(), Sort.by("created_at").descending());
+        Page<Task> page = taskRepository.searchTasks(
+                searchDto.getStatus(),
+                searchDto.getUserId(),
+                searchDto.getTitle(),
+                searchDto.getDescription(),
+                pageable);
+
+        return getCategory(page);
+    }
 
     /***
      * user transactional to roll back if error
@@ -118,31 +138,10 @@ public class TaskServiceImpl implements ITaskService {
     }
 
     @Override
-    public List<ObjectNode> fetchAllTasks() {
-        List<Task> tasks = taskRepository.findAllByOrderByCreatedAtDesc();
-        List<Bug> bugs = bugRepository.findAll();
-        List<Feature> features = featureRepository.findAll();
-        if (!tasks.isEmpty()) {
-            return tasks.stream().map(task -> {
-                if (Constants.CATEGORY.BUG.getCode() == task.getCategory()) {
-                    Bug bug = bugs.stream().filter(b -> Objects.equals(b.getId(), task.getCategoryId()))
-                            .findFirst().orElse(null);
-                    if (bug != null) {
-                        BugDto bugDto = TaskMapper.mapToBugDto(bug, task, new BugDto());
-                        return mapper.valueToTree(bugDto);
-                    }
-                } else {
-                    Feature feature = features.stream().filter(b -> Objects.equals(b.getId(), task.getCategoryId()))
-                            .findFirst().orElse(null);
-                    if (feature != null) {
-                        FeatureDto featureDto = TaskMapper.mapToFeatureDto(feature, task, new FeatureDto());
-                        return (ObjectNode) mapper.valueToTree(featureDto);
-                    }
-                }
-                return null;
-            }).filter(Objects::nonNull).toList();
-        }
-        return List.of();
+    public Page<ObjectNode> fetchAllTasks() {
+        Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by("createdAt").descending());
+        Page<Task> tasks = taskRepository.findAllByOrderByCreatedAtDesc(pageable);
+        return getCategory(tasks);
     }
 
     @Override
@@ -212,6 +211,32 @@ public class TaskServiceImpl implements ITaskService {
             task.setId(taskId);
         }
         taskRepository.save(task);
+    }
+
+    private Page<ObjectNode> getCategory(Page<Task> pages) {
+        List<Task> tasks = pages.getContent();
+        if (!tasks.isEmpty()) {
+             var contents = tasks.stream().map(task -> {
+                if (Constants.CATEGORY.BUG.getCode() == task.getCategory()) {
+                    Bug bug = bugRepository.findById(task.getCategoryId())
+                            .orElse(null);
+                    if (bug != null) {
+                        BugDto bugDto = TaskMapper.mapToBugDto(bug, task, new BugDto());
+                        return mapper.valueToTree(bugDto);
+                    }
+                } else {
+                    Feature feature = featureRepository.findById(task.getCategoryId())
+                            .orElse(null);
+                    if (feature != null) {
+                        FeatureDto featureDto = TaskMapper.mapToFeatureDto(feature, task, new FeatureDto());
+                        return (ObjectNode) mapper.valueToTree(featureDto);
+                    }
+                }
+                return null;
+            }).filter(Objects::nonNull).toList();
+            return new PageImpl<>(contents, pages.getPageable(), pages.getTotalElements());
+        }
+        return Page.empty();
     }
 }
 
