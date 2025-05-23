@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Service
@@ -37,6 +38,35 @@ public class TaskServiceImpl implements ITaskService {
     private Validator validator;
 
     private static final String CATEGORY = "category";
+
+    @Override
+    public List<ObjectNode> fetchAllTasks() {
+        List<Task> tasks = taskRepository.findAllByOrderByCreatedAtDesc();
+        List<Bug> bugs = bugRepository.findAll();
+        List<Feature> features = featureRepository.findAll();
+        ObjectMapper mapper = new ObjectMapper();
+        if (!tasks.isEmpty()) {
+            return tasks.stream().map(task -> {
+                if (Constants.CATEGORY.BUG.getCode() == task.getCategory()) {
+                    Bug bug = bugs.stream().filter(b -> Objects.equals(b.getId(), task.getCategoryId()))
+                            .findFirst().orElse(null);
+                    if (bug != null) {
+                        BugDto bugDto = TaskMapper.mapToBugDto(bug, task, new BugDto());
+                        return mapper.valueToTree(bugDto);
+                    }
+                } else {
+                    Feature feature = features.stream().filter(b -> Objects.equals(b.getId(), task.getCategoryId()))
+                            .findFirst().orElse(null);
+                    if (feature != null) {
+                        FeatureDto featureDto = TaskMapper.mapToFeatureDto(feature, task, new FeatureDto());
+                        return (ObjectNode) mapper.valueToTree(featureDto);
+                    }
+                }
+                return null;
+            }).filter(Objects::nonNull).toList();
+        }
+        return List.of();
+    }
 
     @Override
     public void createTask(ObjectNode taskDto) {

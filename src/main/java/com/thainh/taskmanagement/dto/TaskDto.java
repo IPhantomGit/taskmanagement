@@ -37,4 +37,7 @@ public class TaskDto {
     @Max(value = 2, message = "Status must be between 0 and 2")
     @Schema(description = "status", example = "0")
     private int status;
+    @Schema(description = "createAt", example = "2025/05/23")
+    private String createdAt;
+
 }

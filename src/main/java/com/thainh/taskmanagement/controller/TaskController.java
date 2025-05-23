@@ -1,9 +1,7 @@
 package com.thainh.taskmanagement.controller;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.thainh.taskmanagement.dto.ResponseDto;
-import com.thainh.taskmanagement.dto.TaskDto;
-import com.thainh.taskmanagement.dto.UsersDto;
+import com.thainh.taskmanagement.dto.*;
 import com.thainh.taskmanagement.service.ITaskService;
 import com.thainh.taskmanagement.utils.Constants;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,10 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(
         name = "Task Management",
@@ -86,5 +81,21 @@ public class TaskController {
         taskService.createTask(taskDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ResponseDto(Constants.STATUS_201,Constants.CREATE_SUCCESS));
+    }
+
+    @Operation(
+            summary = "Get all tasks",
+            description = "Get all tasks"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Fetch all tasks"
+            )}
+    )
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TaskListDto> fetchAllUsers() {
+        TaskListDto result = new TaskListDto(taskService.fetchAllTasks());
+        return ResponseEntity.ok(result);
     }
 }

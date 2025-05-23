@@ -24,12 +24,14 @@ public class TaskMapper {
         bugDto.setCategory(task.getCategory());
         bugDto.setCategoryId(task.getCategoryId());
         bugDto.setStatus(task.getStatus());
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+        bugDto.setCreatedAt(task.getCreatedAt().format(df));
         return bugDto;
     }
 
     public static Task mapToTask(BugDto bugDto, Task task) {
-        task.setDescription(bugDto.getDescription());
         task.setTitle(bugDto.getTitle());
+        task.setDescription(bugDto.getDescription());
         task.setUserId(bugDto.getUserId());
         task.setCategory(bugDto.getCategory());
         task.setCategoryId(bugDto.getCategoryId());
@@ -43,6 +45,21 @@ public class TaskMapper {
         bug.setExpectedResult(bugDto.getExpectedResult());
         bug.setActualResult(bugDto.getActualResult());
         return bug;
+    }
+
+    public static FeatureDto mapToFeatureDto(Feature feature, Task task, FeatureDto featureDto) {
+        featureDto.setId(task.getId());
+        DateTimeFormatter sdf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+        featureDto.setDeadline(feature.getDeadline().format(sdf));
+        featureDto.setTitle(task.getTitle());
+        featureDto.setBusinessValue(feature.getBusinessValue());
+        featureDto.setDescription(task.getDescription());
+        featureDto.setUserId(task.getUserId());
+        featureDto.setCategory(task.getCategory());
+        featureDto.setCategoryId(task.getCategoryId());
+        featureDto.setStatus(task.getStatus());
+        featureDto.setCreatedAt(task.getCreatedAt().format(sdf));
+        return featureDto;
     }
 
     public static Task mapToTask(FeatureDto featureDto, Task task) {
