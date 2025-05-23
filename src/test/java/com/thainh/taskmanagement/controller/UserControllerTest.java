@@ -55,17 +55,17 @@ public class UserControllerTest {
         //convert object to json
         ObjectMapper objectMapper = new ObjectMapper();
 
-        when(usersRepository.findAll()).thenReturn(List.of(user));
+        when(usersRepository.findAllByOrderByIdAscCreatedAtAsc()).thenReturn(List.of(user));
 
         // Perform request
-        mockMvc.perform(get("/api/users"))
+        mockMvc.perform(get("/api/users/"))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
                     var actual = objectMapper.readValue(result.getResponse().getContentAsString(),
                             new TypeReference<HashMap<String, List<UsersDto>>>() {});
                     assertEquals("fetch all user successful",
                             usersDto,
-                            actual.get("users").getFirst());
+                            actual.get("results").getFirst());
                 });
     }
 
