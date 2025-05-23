@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thainh.taskmanagement.dto.UsersDto;
 import com.thainh.taskmanagement.entity.Users;
 import com.thainh.taskmanagement.repository.UsersRepository;
-import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

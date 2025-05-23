@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ import java.util.List;
         name = "UsersList",
         description = "Users list information"
 )
+@NoArgsConstructor
 @AllArgsConstructor
 public class TaskListDto {
     @Schema(description = "list of users", example = "[]")
