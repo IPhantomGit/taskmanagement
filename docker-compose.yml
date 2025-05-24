@@ -24,4 +24,15 @@ services:
       SPRING_DATASOURCE_PASSWORD: postgres
     depends_on:
       - postgres
-   
+  test:
+    build:
+      context: .
+      target: builder  # Use the Maven stage
+    container_name: taskmanagement_test
+    command: mvn test
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/taskmanagement
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - postgres

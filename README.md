@@ -38,20 +38,21 @@ After the application starts, access the Swagger UI:
 
 ## How to Run Tests
 
+### API Tests (Swagger UI)
+
+1. Open the Swagger UI at [API Document](http://localhost:8080/swagger-ui/index.html)
+2. Click on the **Execute** button in the top-right corner of each api request
+
 ### API Tests (Postman)
 
-1. Import api_collection.json into Postman
+1. Import api_collection.json from source code into Postman
 2. Execute the API requests defined in the collection
 
 ### JUnit/Integration Tests
 
-#### Prerequisites
-
-- [Maven](https://maven.apache.org/)
-
 ```
 cd taskmanagement
-mvn clean test
+docker compose run -rm test
 ```
 
 ## Brief design
