@@ -1,5 +1,5 @@
 # Step 1: Build the JAR
-FROM maven:3.9-eclipse-temurin-21 AS builder
+FROM maven:3.9-eclipse-temurin-17 AS builder
 WORKDIR /app
 
 # Copy only the necessary files to speed up the build
@@ -13,7 +13,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Step 2: Run the JAR
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:17-jdk
 WORKDIR /app
 
 # Copy the built JAR from the builder stage
