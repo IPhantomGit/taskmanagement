@@ -9,8 +9,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(
-        name = "Bug category",
-        description = "Bug information"
+        name = "Feature category",
+        description = "Feature information"
 )
 public class FeatureDto extends TaskDto {
 
