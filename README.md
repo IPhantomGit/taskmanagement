@@ -44,7 +44,12 @@ description: A brief, readable description of the migration's purpose. Use under
 Example: V6__drop_actual_column_of_bug.sql
 ```
 
-2. Rerun the application
+2. Rerun the application by run command
+
+```
+cd taskmanagement
+docker compose up -d --build
+```
 
 ## API Documentation
 
