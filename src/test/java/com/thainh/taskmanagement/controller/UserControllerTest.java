@@ -95,6 +95,111 @@ public class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Create user failed: user exist")
+    public void testCreateUser1() throws Exception {
+        UsersDto usersDto = new UsersDto();
+        usersDto.setUsername("thainh");
+        usersDto.setFullName("Nguyen Thai");
+
+        Users users = new Users();
+        users.setId(1L);
+        users.setUsername("thainh");
+        users.setFullName("Nguyen Thai");
+
+        when(usersRepository.findByUsername("thainh")).thenReturn(Optional.of(users));
+
+        //convert object to json
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(usersDto);
+
+        var expectRes = new HashMap<>();
+        expectRes.put("errorCode", "BAD_REQUEST");
+
+        // Perform request
+        mockMvc.perform(post("/api/users/create")
+                        .contentType("application/json")
+                        .content(json))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    var actual = objectMapper.readValue(result.getResponse().getContentAsString(),
+                            new TypeReference<Map<String, String>>() {});
+                    assertEquals("create user failed",
+                            expectRes.get("errorCode"),
+                            actual.get("errorCode"));
+                });
+    }
+
+    @Test
+    @DisplayName("Create user failed: exception error")
+    public void testCreateUser2() throws Exception {
+        UsersDto usersDto = new UsersDto();
+        usersDto.setUsername("thainh");
+        usersDto.setFullName("Nguyen Thai");
+
+        Users users = new Users();
+        users.setId(1L);
+        users.setUsername("thainh");
+        users.setFullName("Nguyen Thai");
+
+        when(usersRepository.findByUsername("thainh")).thenThrow(new RuntimeException("failed"));
+
+        //convert object to json
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(usersDto);
+
+        var expectRes = new HashMap<>();
+        expectRes.put("errorCode", "INTERNAL_SERVER_ERROR");
+
+        // Perform request
+        mockMvc.perform(post("/api/users/create")
+                        .contentType("application/json")
+                        .content(json))
+                .andExpect(status().isInternalServerError())
+                .andExpect(result -> {
+                    var actual = objectMapper.readValue(result.getResponse().getContentAsString(),
+                            new TypeReference<Map<String, String>>() {});
+                    assertEquals("create user failed",
+                            expectRes.get("errorCode"),
+                            actual.get("errorCode"));
+                });
+    }
+
+    @Test
+    @DisplayName("Create user failed: invalid user error")
+    public void testCreateUser3() throws Exception {
+        UsersDto usersDto = new UsersDto();
+        usersDto.setUsername("thainh");
+        usersDto.setFullName("NT");
+
+        Users users = new Users();
+        users.setId(1L);
+        users.setUsername("thainh");
+        users.setFullName("Nguyen Thai");
+
+        when(usersRepository.findByUsername("thainh")).thenReturn(Optional.of(users));
+
+        //convert object to json
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(usersDto);
+
+        var expectRes = new HashMap<>();
+        expectRes.put("fullName", "Full name must be at least 5 characters");
+
+        // Perform request
+        mockMvc.perform(post("/api/users/create")
+                        .contentType("application/json")
+                        .content(json))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    var actual = objectMapper.readValue(result.getResponse().getContentAsString(),
+                            new TypeReference<Map<String, String>>() {});
+                    assertEquals("create user failed",
+                            expectRes.get("fullName"),
+                            actual.get("fullName"));
+                });
+    }
+
+    @Test
     @DisplayName("Fetch user successfully")
     public void testFetchUser() throws Exception {
         Users users = new Users();
@@ -128,6 +233,64 @@ public class UserControllerTest {
                     assertEquals("fetch user full name successful",
                             expectRes.get("fullName"),
                             actualRes.get("fullName"));
+                });
+    }
+
+    @Test
+    @DisplayName("Fetch user failed: user not exist")
+    public void testFetchUser1() throws Exception {
+        Users users = new Users();
+        users.setId(1L);
+        users.setUsername("thainh");
+        users.setFullName("Nguyen Thai");
+
+        //convert object to json
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        var expectRes = new HashMap<>();
+        expectRes.put("errorCode", "NOT_FOUND");
+
+        when(usersRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Perform request
+        mockMvc.perform(get("/api/users/1"))
+                .andExpect(status().isNotFound())
+                .andExpect(result -> {
+                    var actualRes = objectMapper.readValue(
+                            result.getResponse().getContentAsString(),
+                            new TypeReference<Map<String, Object>>() {});
+                    assertEquals("fetch user id failed",
+                            expectRes.get("errorCode"),
+                            actualRes.get("errorCode"));
+                });
+    }
+
+    @Test
+    @DisplayName("Fetch user failed: internal server error")
+    public void testFetchUser2() throws Exception {
+        Users users = new Users();
+        users.setId(1L);
+        users.setUsername("thainh");
+        users.setFullName("Nguyen Thai");
+
+        //convert object to json
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        var expectRes = new HashMap<>();
+        expectRes.put("errorCode", "INTERNAL_SERVER_ERROR");
+
+        when(usersRepository.findById(1L)).thenThrow(new RuntimeException("failed"));
+
+        // Perform request
+        mockMvc.perform(get("/api/users/1"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(result -> {
+                    var actualRes = objectMapper.readValue(
+                            result.getResponse().getContentAsString(),
+                            new TypeReference<Map<String, Object>>() {});
+                    assertEquals("fetch user id failed",
+                            expectRes.get("errorCode"),
+                            actualRes.get("errorCode"));
                 });
     }
 
@@ -168,6 +331,76 @@ public class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Update user failed: user not found")
+    public void testUpdateUser1() throws Exception {
+        UsersDto usersDto = new UsersDto();
+        usersDto.setFullName("Nguyen Thai update");
+
+        Users users = new Users();
+        users.setId(1L);
+        users.setUsername("thainh");
+        users.setFullName("Nguyen Thai");
+
+        //convert object to json
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(usersDto);
+
+        var expectRes = new HashMap<>();
+        expectRes.put("errorCode", "NOT_FOUND");
+
+        when(usersRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Perform request
+        mockMvc.perform(patch("/api/users/update/1")
+                        .contentType("application/json")
+                        .content(json))
+                .andExpect(status().isNotFound())
+                .andExpect(result -> {
+                    var actualRes = objectMapper.readValue(
+                            result.getResponse().getContentAsString(),
+                            new TypeReference<Map<String, String>>() {});
+                    assertEquals("update user successful",
+                            expectRes.get("errorCode"),
+                            actualRes.get("errorCode"));
+                });
+    }
+
+    @Test
+    @DisplayName("Update user failed: fullname is the same")
+    public void testUpdateUser2() throws Exception {
+        UsersDto usersDto = new UsersDto();
+        usersDto.setFullName("Nguyen Thai");
+
+        Users users = new Users();
+        users.setId(1L);
+        users.setUsername("thainh");
+        users.setFullName("Nguyen Thai");
+
+        //convert object to json
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(usersDto);
+
+        var expectRes = new HashMap<>();
+        expectRes.put("errorCode", "BAD_REQUEST");
+
+        when(usersRepository.findById(1L)).thenReturn(Optional.of(users));
+
+        // Perform request
+        mockMvc.perform(patch("/api/users/update/1")
+                        .contentType("application/json")
+                        .content(json))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> {
+                    var actualRes = objectMapper.readValue(
+                            result.getResponse().getContentAsString(),
+                            new TypeReference<Map<String, String>>() {});
+                    assertEquals("update user failed",
+                            expectRes.get("errorCode"),
+                            actualRes.get("errorCode"));
+                });
+    }
+
+    @Test
     @DisplayName("Delete user successfully")
     public void testDeleteUser() throws Exception {
         Users users = new Users();
@@ -193,6 +426,34 @@ public class UserControllerTest {
                     assertEquals("delete user successful",
                             expectRes,
                             actualRes);
+                });
+    }
+
+    @Test
+    @DisplayName("Delete user failed: user not exist")
+    public void testDeleteUser1() throws Exception {
+        Users users = new Users();
+        users.setId(1L);
+        users.setUsername("thainh");
+        users.setFullName("Nguyen Thai");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        var expectRes = new HashMap<>();
+        expectRes.put("errorCode", "NOT_FOUND");
+
+        when(usersRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Perform request
+        mockMvc.perform(delete("/api/users/delete/1"))
+                .andExpect(status().isNotFound())
+                .andExpect(result -> {
+                    var actualRes = objectMapper.readValue(
+                            result.getResponse().getContentAsString(),
+                            new TypeReference<Map<String, String>>() {});
+                    assertEquals("delete user failed",
+                            expectRes.get("errorCode"),
+                            actualRes.get("errorCode"));
                 });
     }
 }

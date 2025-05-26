@@ -1,0 +1,3 @@
+ALTER TABLE BUG DROP COLUMN expected_result;
+ALTER TABLE BUG RENAME COLUMN actual_result TO actual;
+ALTER TABLE FEATURE ADD COLUMN vs varchar(255);
