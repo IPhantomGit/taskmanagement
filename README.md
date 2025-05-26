@@ -33,7 +33,7 @@ docker compose up -d --build
 
 ### Migrate Database
 
-add migration scripts to src/main/resources/db/migration with format
+1. add migration scripts to src/main/resources/db/migration with below format
 
 ```
 V[number]__[description].sql
@@ -43,6 +43,8 @@ description: A brief, readable description of the migration's purpose. Use under
 
 Example: V6__drop_actual_column_of_bug.sql
 ```
+
+2. Rerun the application
 
 ## API Documentation
 
