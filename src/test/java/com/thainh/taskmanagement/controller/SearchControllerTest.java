@@ -99,4 +99,46 @@ public class SearchControllerTest {
                             actual.getResults().get(0).get("title").asText());
                 });
     }
+
+    @Test
+    @DisplayName("Search task failed, exception occurred")
+    public void testSearchTask1() throws Exception {
+        // Mock a paginated response
+        ObjectMapper objectMapper = new ObjectMapper();
+        SearchDto searchDto = new SearchDto();
+        searchDto.setPageNum(0);
+        searchDto.setPageSize(10);
+        searchDto.setStatus(0);
+        searchDto.setUserId(1L);
+        searchDto.setTitle("Test");
+        searchDto.setDescription("description");
+        String json = objectMapper.writeValueAsString(searchDto);
+
+        Task task = new Task();
+        task.setId(1L);
+        task.setTitle("Test Task");
+        task.setStatus(0);
+        task.setCategory(0);
+        task.setCategoryId(1L);
+        task.setCreatedAt(LocalDate.parse("2025/05/23", DateTimeFormatter.ofPattern("yyyy/MM/dd")).atStartOfDay());
+        Bug bug = new Bug();
+        bug.setId(1L);
+        bug.setSeverity(0);
+        bug.setStepsToReproduce("Steps to reproduce");
+        bug.setExpectedResult("Expected result");
+        bug.setActualResult("Actual result");
+
+        Users users = new Users();
+        users.setId(1L);
+        users.setUsername("thainh");
+
+        Page<Task> page = new PageImpl<>(List.of(task), PageRequest.of(0, 10), 1);
+        when(taskRepository.searchTasks(anyInt(), anyLong(), anyString(), anyString(), any())).thenReturn(page);
+        when(bugRepository.findById(1L)).thenThrow(new RuntimeException("Exception occurred"));
+        when(usersRepository.findById(1L)).thenReturn(Optional.of(users));
+        mockMvc.perform(post("/api/search/")
+                        .contentType("application/json")
+                        .content(json))
+                .andExpect(status().isInternalServerError());
+    }
 }
